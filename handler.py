@@ -2,6 +2,7 @@
 from validation import input_error, validation_for_add_function, \
     validation_for_change_function, validation_for_show_function
 from utils import print_with_color
+from collections import UserDict
 
 
 @input_error
@@ -52,3 +53,75 @@ def show_all(contacts):
     for name, phone in contacts.items():
         print_with_color(f"{name}: {phone}", 'yellow')
     return True
+
+
+
+class Field:
+    """ class field """
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return str(self.value)
+
+
+class Name(Field):
+    # реалізація класу
+		pass
+
+
+class Phone(Field):
+    # реалізація класу
+		pass
+
+
+
+class Record:
+    """ class record """
+
+    def __init__(self, name):
+        self.name = Name(name)
+        self.phones = []
+
+    def __str__(self):
+        return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}"
+
+    def add_phone(self, phone:str) -> list[str]:
+        """ add phone to list """
+        self.phones.append(phone)
+
+
+    def remove_phone(self, phone):
+        """ remove phone from list """
+        self.phones.remove(phone)
+
+
+    def edit_phone(self, phone):
+        """ edit phone into list """
+        pass 
+
+
+    def find_phone(self):
+        """ find phone into list """ 
+        pass
+
+
+
+class AddressBook(UserDict):
+    """ adress book class """
+    data = {}
+
+
+    def add_record(self, data):
+        """ add record into dict """
+        self.data.append(data)
+
+
+    def find(self):
+        """ find something into dictionary """
+        pass
+
+
+    def delete(self):
+        """ delete somenthing from user dictionary """
+        pass
