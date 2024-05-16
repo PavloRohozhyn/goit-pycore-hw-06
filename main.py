@@ -1,57 +1,159 @@
-""" sys modules """
-from utils import print_with_color, print_banner
-from handler import parse_input, add_contact, change_contact, show_all, show_phone
+""" import UserDict """
 
+from collections import UserDict
+import re
+
+class Field:
+    """ class Field """
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return str(self.value)
+
+
+class Name(Field):
+    """ class Name """
+    def __init__(self, value):
+        super().__init__(value)
+        self.value = value
+
+
+class Phone(Field):
+    """ class Phone """
+    def __init__(self, value):
+        super().__init__(value)
+
+        if self.validation(value):
+            self.value = value
+        else:
+            raise ValueError # todo write hendler
+
+    def validation(self, phone):
+        """ phone validation, only 10 numbers """
+        return re.match(r'^[0-9]{10}$', phone)
+
+
+
+class Record:
+    """ class record """
+
+    def __init__(self, name):
+        self.name = Name(name)
+        self.phones = []
+
+
+    def add_phone(self, phone:str) -> None:
+        """ add phone to list """
+        self.phones.append(Phone(phone))
+
+
+    def remove_phone(self, phone):
+        """ remove phone from phones list """ 
+        self.phones.remove(phone)
+
+
+    def edit_phone(self, old, new):
+        """ edit phone into phones list """
+        # check if exists
+        obj = self.find_phone(old)
+        if obj:
+            # remove old phone
+            self.remove_phone(obj)
+            # add new phone
+            self.add_phone(new)
+
+
+    def find_phone(self, phone):
+        """ find phone into list """            
+        for item in self.phones:
+            if phone == item.value:
+                return item
+        # if nothing is found
+        return False
+
+    def __str__(self):
+        return f"Contact name: {self.name}, phones: {'; '.join(str(p) for p in self.phones)}"
+
+
+    def __iter__(self):
+        """Iterate over attributes"""
+
+        yield self.name
+        yield from self.phones
+
+
+# {
+#    Name: [Phone]
+# }
+
+class AddressBook(UserDict):
+    """ adress book class """
+
+    def __init__(self):
+        """ initialization address data """
+        super().__init__()
+
+    def add_record(self, record):
+        """ add record into dict, record has name and phones """
+        self.data[record.name] = record
+        
+
+    def find(self, fname):
+        """ find name """
+        for name in self.data:
+            if name.value == fname:
+                return self.data[name]
+        return 'No data'
+
+
+    def delete(self, key):
+        """ delete somenthing from user dictionary """
+        remove = None
+        for item in self.data:
+            if key == item.value:
+                remove = item
+                break
+        # remove element from dictionary
+        self.data.pop(remove)
 
 # Main
 def main():
-    """ bot commands hendler """
-    contacts = {}
-    while True:
+    """ main function """
 
-        user_input = input("Enter a command: ")
-        command, *args = parse_input(user_input)
+   # Створення нової адресної книги
+    book = AddressBook()
 
-        # close, exit
-        if  command in ["close", "exit"]:
-            print_with_color("Good bye!", 'yellow')
-            break
+    # Створення запису для John
+    john_record = Record("John")
+    john_record.add_phone("1234567890")
+    john_record.add_phone("5555555555")
 
-        # hello
-        elif command in ["hello"]:
-            print_with_color("How can I help you?", 'yellow')
+    # Додавання запису John до адресної книги
+    book.add_record(john_record)
 
-        # add
-        elif command in ["add"]:
-            print_with_color(add_contact(args, contacts), 'yellow')
+    # # Створення та додавання нового запису для Jane
+    jane_record = Record("Jane")
+    jane_record.add_phone("9876543210")
+    book.add_record(jane_record)
 
-        # change
-        elif command in ['change']:
-            print_with_color(change_contact(args, contacts), 'yellow')
+    # Виведення всіх записів у книзі
+    for name, record in book.data.items():
+        print(record)
 
-        # phone
-        elif command in ['phone']:
-            print_with_color(show_phone(args, contacts), 'yellow')
+    # Знаходження та редагування телефону для John
+    john = book.find("John")
+    john.edit_phone("1234567890", "1112223333")
 
-        # all
-        elif command in ['all']:
-            show_all(contacts)
+    print(john)  # Виведення: Contact name: John, phones: 1112223333; 5555555555
 
-        # something else
-        else:
-            print_with_color("Invalid command.", 'yellow')
+    # Пошук конкретного телефону у записі John
+    found_phone = john.find_phone("5555555555")
+    print(f"{john.name}: {found_phone}")  # Виведення: 5555555555
+
+    # Видалення запису Jane
+    book.delete("Jane")
 
 if __name__ == "__main__":
-
-    print_banner()
-    print("Welcome to the assistant bot!\n\n")
-    print("List of commands")
-    print_with_color("1. FGBS hello BESR say hello to the assistant")
-    print_with_color("2. FGBS add [contact_name] [phone_number] BESR adds contact name and phone number to memory")
-    print_with_color("3. FGBS change [contact_name] [new_phone_number] BESR edits the contact's phone number")
-    print_with_color("4. FGBS phone [contact_name] BESR displays the contact's phone number")
-    print_with_color("5. FGBS all BESR show contacts phone book")
-    print_with_color("6. FGBS close BESR or FGBS exit BESR exit from the assistant\n\n")
-
     # main
     main()
