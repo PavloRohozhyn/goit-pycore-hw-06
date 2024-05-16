@@ -2,32 +2,37 @@
 
 from collections import UserDict
 import re
+import sys
 
 class Field:
-    """ class Field """
+    """ field element """
+
     def __init__(self, value):
         self.value = value
 
+    # sting representation
     def __str__(self):
         return str(self.value)
 
 
 class Name(Field):
-    """ class Name """
+    """ contact name """
+
     def __init__(self, value):
         super().__init__(value)
         self.value = value
 
 
 class Phone(Field):
-    """ class Phone """
+    """ contact phones """
+
     def __init__(self, value):
         super().__init__(value)
-
         if self.validation(value):
             self.value = value
         else:
-            raise ValueError # todo write hendler
+            raise ValueError
+
 
     def validation(self, phone):
         """ phone validation, only 10 numbers """
@@ -36,7 +41,7 @@ class Phone(Field):
 
 
 class Record:
-    """ class record """
+    """ element of record for address book """
 
     def __init__(self, name):
         self.name = Name(name)
@@ -45,7 +50,11 @@ class Record:
 
     def add_phone(self, phone:str) -> None:
         """ add phone to list """
-        self.phones.append(Phone(phone))
+        try:
+            self.phones.append(Phone(phone))
+        except ValueError:
+            print('Phone validation failed, the phone must have 10 digits and consist only of numbers')
+            sys.exit(0)
 
 
     def remove_phone(self, phone):
@@ -73,12 +82,12 @@ class Record:
         return False
 
     def __str__(self):
+        """ string representation """
         return f"Contact name: {self.name}, phones: {'; '.join(str(p) for p in self.phones)}"
 
 
     def __iter__(self):
         """Iterate over attributes"""
-
         yield self.name
         yield from self.phones
 
@@ -90,14 +99,10 @@ class Record:
 class AddressBook(UserDict):
     """ adress book class """
 
-    def __init__(self):
-        """ initialization address data """
-        super().__init__()
-
     def add_record(self, record):
         """ add record into dict, record has name and phones """
         self.data[record.name] = record
-        
+
 
     def find(self, fname):
         """ find name """
@@ -153,6 +158,8 @@ def main():
 
     # Видалення запису Jane
     book.delete("Jane")
+
+
 
 if __name__ == "__main__":
     # main
