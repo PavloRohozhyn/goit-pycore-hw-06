@@ -58,8 +58,14 @@ class Record:
 
 
     def remove_phone(self, phone):
-        """ remove phone from phones list """ 
-        self.phones.remove(phone)
+        """ remove phone from phones list """
+        if isinstance(phone, str):
+            phone = self.find_phone(phone)
+
+        if isinstance(phone, Phone):
+            self.phones.remove(phone)
+        else:
+            raise ValueError('invalid class instance was passed')
 
 
     def edit_phone(self, old, new):
@@ -68,7 +74,11 @@ class Record:
         obj = self.find_phone(old)
         if obj:
             # remove old phone
-            self.remove_phone(obj)
+            try:
+                self.remove_phone(obj)
+            except ValueError:
+                print('Phone validation failed, the phone must have 10 digits and consist only of numbers')
+                sys.exit(0)
             # add new phone
             self.add_phone(new)
 
